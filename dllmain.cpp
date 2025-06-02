@@ -1,6 +1,7 @@
 // dllmain.cpp : Defines the entry point for the DLL application.
 #include "pch.h"
 #include "DIPHook.h"
+#include "Hook.h"
 
 void InitConsole () {
 
@@ -45,10 +46,21 @@ DWORD WINAPI SetupHook (LPVOID lpParam) {
 	MH_Initialize ();
 
 	DWORD_PTR* vTable = GetVTableAddress ();
-	if (!vTable) return 1;
+	if (!vTable) {
+		std::cerr << "[ERROR] Failed to retrieve vTable address." << std::endl;
+		return 1;
+	}
 
+	uintptr_t base = (uintptr_t)GetModuleHandle (L"PointBlank.exe");
+	if (!base) {
+		std::cerr << "Failed to get module handle for PointBlank.exe" << std::endl;
+		return 1; // Return an error code
+	}
+
+	//DWORD_PTR* vtable = reinterpret_cast<DWORD_PTR*>(0x010BDCD8);
+	//void* pFunc = reinterpret_cast<void*>(vtable[1]);
+	void* pGetPositionFn = (void*)(base + 0x009d622f);
 	void* pDIP = (void*)vTable[82];
-
 
 	if (MH_CreateHook (pDIP, &hkDrawIndexedPrimitive, reinterpret_cast<void**>(&oDrawIndexedPrimitive)) != MH_OK) {
 		std::cout << "[ERROR] Failed to create DIP hook." << std::endl;
@@ -57,6 +69,16 @@ DWORD WINAPI SetupHook (LPVOID lpParam) {
 
 	if (MH_EnableHook (pDIP) != MH_OK) {
 		std::cout << "[ERROR] Failed to enable DIP hook." << std::endl;
+		return 1;
+	}
+
+	if (MH_CreateHook (pGetPositionFn, &hkGetPosition, reinterpret_cast<void**>(&oGetPosition)) != MH_OK) {
+		std::cout << "[ERROR] Failed to create Func hook." << std::endl;
+		return 1;
+	}
+
+	if (MH_EnableHook (pGetPositionFn) != MH_OK) {
+		std::cout << "[ERROR] Failed to enable Func hook." << std::endl;
 		return 1;
 	}
 
