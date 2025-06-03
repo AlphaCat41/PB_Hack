@@ -1,5 +1,6 @@
 #pragma once
 #include "pch.h"
+#include "Hooks.h"
 
 typedef HRESULT (APIENTRY* DIP_t)(LPDIRECT3DDEVICE9, D3DPRIMITIVETYPE, INT, UINT, UINT, UINT, UINT);
 DIP_t oDrawIndexedPrimitive = nullptr;
@@ -20,6 +21,8 @@ void CreateYellowTexture (LPDIRECT3DDEVICE9 pDevice) {
 		}
 	}
 }
+
+
 HRESULT APIENTRY hkDrawIndexedPrimitive (LPDIRECT3DDEVICE9 pDevice,
 	D3DPRIMITIVETYPE Type,
 	INT BaseVertexIndex,

@@ -24,7 +24,7 @@
     <ClInclude Include="DIPHook.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Hook.h">
+    <ClInclude Include="Hooks.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

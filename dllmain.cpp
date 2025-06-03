@@ -1,7 +1,7 @@
 // dllmain.cpp : Defines the entry point for the DLL application.
 #include "pch.h"
 #include "DIPHook.h"
-#include "Hook.h"
+#include "Hooks.h"
 
 void InitConsole () {
 
@@ -57,9 +57,8 @@ DWORD WINAPI SetupHook (LPVOID lpParam) {
 		return 1; // Return an error code
 	}
 
-	//DWORD_PTR* vtable = reinterpret_cast<DWORD_PTR*>(0x010BDCD8);
-	//void* pFunc = reinterpret_cast<void*>(vtable[1]);
-	void* pFunc = (void*)(base + (0x3fb049)); // base + imagebase offset
+	//void* pFuncCalcDamage = (void*)(base + (0x3fb049)); // base + imagebase offset
+	void* pGetPosition = (void*)(base + (0x3d5fae));
 	void* pDIP = (void*)vTable[82];
 
 	if (MH_CreateHook (pDIP, &hkDrawIndexedPrimitive, reinterpret_cast<void**>(&oDrawIndexedPrimitive)) != MH_OK) {
@@ -72,15 +71,25 @@ DWORD WINAPI SetupHook (LPVOID lpParam) {
 		return 1;
 	}
 
-	if (MH_CreateHook (pFunc, &hkCalcDamage, reinterpret_cast<void**>(&oCalcDamage)) != MH_OK) {
-		std::cout << "[ERROR] Failed to create Func hook." << std::endl;
+	if (MH_CreateHook (pGetPosition, &hkGetPosition, reinterpret_cast<void**>(&oGetPosition)) != MH_OK) {
+		std::cout << "[ERROR] Failed to create GetPosition hook." << std::endl;
 		return 1;
 	}
 
-	if (MH_EnableHook (pFunc) != MH_OK) {
-		std::cout << "[ERROR] Failed to enable Func hook." << std::endl;
+	if (MH_EnableHook (pGetPosition) != MH_OK) {
+		std::cout << "[ERROR] Failed to enable GetPosition hook." << std::endl;
 		return 1;
 	}
+
+	/*if (MH_CreateHook (pFuncCalcDamage, &hkCalcDamage, reinterpret_cast<void**>(&oCalcDamage)) != MH_OK) {
+		std::cout << "[ERROR] Failed to create CalcDamage hook." << std::endl;
+		return 1;
+	}
+
+	if (MH_EnableHook (pFuncCalcDamage) != MH_OK) {
+		std::cout << "[ERROR] Failed to enable CalcDamage hook." << std::endl;
+		return 1;
+	}*/
 
 	return 0; // Return a DWORD value as required by LPTHREAD_START_ROUTINE
 }
