@@ -57,8 +57,7 @@ DWORD WINAPI SetupHook (LPVOID lpParam) {
 		return 1; // Return an error code
 	}
 
-	//void* pFuncCalcDamage = (void*)(base + (0x3fb049)); // base + imagebase offset
-	void* pGetPosition = (void*)(base + (0x3d5fae));
+	void* pFunc = (void*)(base + (0x3ffade)); // base + imagebase offset
 	void* pDIP = (void*)vTable[82];
 
 	if (MH_CreateHook (pDIP, &hkDrawIndexedPrimitive, reinterpret_cast<void**>(&oDrawIndexedPrimitive)) != MH_OK) {
@@ -71,25 +70,15 @@ DWORD WINAPI SetupHook (LPVOID lpParam) {
 		return 1;
 	}
 
-	if (MH_CreateHook (pGetPosition, &hkGetPosition, reinterpret_cast<void**>(&oGetPosition)) != MH_OK) {
-		std::cout << "[ERROR] Failed to create GetPosition hook." << std::endl;
+	if (MH_CreateHook (pFunc, &hkOnHit, reinterpret_cast<void**>(&oOnHit)) != MH_OK) {
+		std::cout << "[ERROR] Failed to create hook." << std::endl;
 		return 1;
 	}
 
-	if (MH_EnableHook (pGetPosition) != MH_OK) {
-		std::cout << "[ERROR] Failed to enable GetPosition hook." << std::endl;
+	if (MH_EnableHook (pFunc) != MH_OK) {
+		std::cout << "[ERROR] Failed to enable hook." << std::endl;
 		return 1;
 	}
-
-	/*if (MH_CreateHook (pFuncCalcDamage, &hkCalcDamage, reinterpret_cast<void**>(&oCalcDamage)) != MH_OK) {
-		std::cout << "[ERROR] Failed to create CalcDamage hook." << std::endl;
-		return 1;
-	}
-
-	if (MH_EnableHook (pFuncCalcDamage) != MH_OK) {
-		std::cout << "[ERROR] Failed to enable CalcDamage hook." << std::endl;
-		return 1;
-	}*/
 
 	return 0; // Return a DWORD value as required by LPTHREAD_START_ROUTINE
 }
